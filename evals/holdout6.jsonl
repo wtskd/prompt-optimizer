@@ -1,0 +1,21 @@
+// holdout6.jsonl —— 第六个留出集（15 条，id k01–k15），采集即冻结，仅供提示词优化器的干净泛化验证
+// 来源网站：博客园博问（q.cnblogs.com，问题列表与帖子详情，2026-10-06 抓取）
+// 清洗口径：与 holdout5 相同——保留原作者措辞与错别字，不润色、不翻译、不补主语；已去掉 URL、图片链接、markdown 符号、代码块；一条 = 帖子标题 + 正文要点拼合（逐字摘录）
+// 去重结论：与既有 7 个集合 150 条输入逐条比对无重复；已避开既有集合用过的 17 个博问帖子 ID 与已进引擎提示词例子的帖子（170423、168403 等）
+// 标注流程（预注册，先于引擎运行）：① 本文件采集冻结（git 时间戳）→ ② Lead 预标注写入 ANNOTATION.md §6.6 → ③ 全新上下文独立标注员盲标（禁止读仓库）→ ④ 按 §6.6 事先写死的裁定规则合成交终标签 → ⑤ 最后才跑 fast/standard/deep 三档
+// 覆盖目标：补 holdout5 缺失的 converse（k14/k15）；含一条无信号探针（k13）
+{"id":"k01","text":"Kubernetes 集群安装 cilium 后 coredns pod 无法启动。昨天在阿里云国内云服务器上用 kubernetes 1.37.1 搭建集群，网络插件用的是 cilium。安装后 cilium 正常运行，但 coredns pod 因健康检查失败无法启动。错误日志：Liveness probe failed: dial tcp 192.168.0.13:8080: connect: connection refused；Readiness probe 在 8181 端口同样 connection refused；容器已创建并启动，但因存活探针失败被反复重启。请问如何解决这个问题？操作系统用的是 ubuntu 26.04。","source":"https://q.cnblogs.com/q/171478","note":"博客园博问，楼主给出完整现场（版本/配置/日志）后求解决，悬赏 20 园豆","boundary_draft":"报错类看诉求：'如何解决'=要修复（code/plan），现场详细也可归因（analyze）"}
+{"id":"k02","text":"以后想走病毒分析这路，看了网上的介绍逆向工程需要学习c/c++和汇编和计算机系统但是我不知道接下来学什么有大佬给介绍吗","source":"https://q.cnblogs.com/q/170421","note":"博客园博问，楼主交代职业目标与已列学习项后求后续路径","boundary_draft":"求可执行的学习路径/清单（plan）"}
+{"id":"k03","text":"AI编程基础版用哪个软件比较好上手，学过一点编程，不过现在应该也忘差不多了，求大佬赐教","source":"https://q.cnblogs.com/q/170432","note":"博客园博问，标题问选哪个软件、正文自陈基础","boundary_draft":"'用哪个'但未点名候选（decide 需≥2已点名选项）；求上手建议（plan）"}
+{"id":"k04","text":"一夜变天，ai编程工具是什么时候开始在国内火起来？--2026年编程工作是不是比较难找？","source":"https://q.cnblogs.com/q/170422","note":"博客园博问，两连问：现象时间线 + 就业难判断","boundary_draft":"现象归因与价值判断（analyze）；非概念解释"}
+{"id":"k05","text":"什么AI编程工具最多人用？","source":"https://q.cnblogs.com/q/170418","note":"博客园博问，正文即标题（重复两遍），无其他补充","boundary_draft":"求人气工具清单；未点名候选（非 decide 的'已点名选项'）"}
+{"id":"k06","text":"怎么让随笔上的合集默认收起？一直是默认展开的，想让他默认是这样","source":"https://q.cnblogs.com/q/168374","note":"博客园博问，博客园平台配置诉求","boundary_draft":"配置/设置类：怎么设置→交付物是配置文本（code）"}
+{"id":"k07","text":"看到了这个：博客园一篇 Luogu_profile 美化文章，觉得上面的透明方块很好看，有没有大佬知道怎么做这个效果？","source":"https://q.cnblogs.com/q/168373","note":"博客园博问，楼主看到效果后求复现做法（原帖 URL 已按清洗口径去掉）","boundary_draft":"要效果的实现写法（code/CSS）"}
+{"id":"k08","text":"复制的链接会乱插入空格，导致无法正常访问。我的意思是：写博客的时候本来没有空格，可是渲染的时候就有空格了。","source":"https://q.cnblogs.com/q/170406","note":"博客园博问，楼主在评论里补充澄清了现象（写时无、渲染时有）","boundary_draft":"已观察到的现象求归因（analyze）"}
+{"id":"k09","text":"只显示文字不显示图片怎么解决？是不是涉及到页面路径了","source":"https://q.cnblogs.com/q/168386","note":"博客园博问，楼主求解决并自带一个归因猜测","boundary_draft":"'怎么解决'=要修复（code）；'是不是路径'=归因猜测（analyze），双信号"}
+{"id":"k10","text":"GEO的底层逻辑是什么？现在做GEO的服务商那么多，该怎么分辨靠谱的服务商","source":"https://q.cnblogs.com/q/168368","note":"博客园博问，标题问概念、正文问挑选方法","boundary_draft":"双信号：底层逻辑（learn）+ 分辨方法（plan）/挑选（decide）"}
+{"id":"k11","text":"求推荐一些还在更新优质java或运用ai开发相关文章的博主。高质量的文章！！！问题补充：java 25，26年有更新，ai 26年有更新","source":"https://q.cnblogs.com/q/168296","note":"博客园博问，求博主清单并给出更新时间要求","boundary_draft":"求推荐清单；博主未点名（decide 需已点名选项）"}
+{"id":"k12","text":"为什么我发的文章审核通过了，但是别人需要登录才能查看","source":"https://q.cnblogs.com/q/163201","note":"博客园博问，单句现象疑问","boundary_draft":"已观察到的现象求归因（analyze）"}
+{"id":"k13","text":"cornerstone5.6.13,遇到的这个问题xmlbuilder2。node版本：v24.18.0，vue3.5.13，typescript~5.7.2","source":"https://q.cnblogs.com/q/168369","note":"博客园博问，正文只有环境信息、问题本体在截图里（文本无信号探针）","boundary_draft":"无信号：标题暗示'遇到问题'但诉求不可判定；预期暴露引擎的无信号回退路径"}
+{"id":"k14","text":"哭了觉得没有人一起讨论问题的话好难受。有些时候自己看题解也会看不懂。我目前的水平看发挥，发挥好的话切绿蓝（好吧，目前是青也可以写部分分），发挥不好啊哈哈~可能连橙黄题都切不了（哭","source":"https://q.cnblogs.com/q/165248","note":"博客园博问，纯情绪吐槽/找同伴，无实质 AI 请求（保留原文错别字与语气）","boundary_draft":"无实质请求（converse）——既有 7 个集合从未覆盖的标签"}
+{"id":"k15","text":"我只是一个超初三学龄一岁的学生，这是我写的代码，只是纯分享，没有恶意！！！（贴出原生代码与AI修正版各一份，共约80行）请大家理性指导！！！","source":"https://q.cnblogs.com/q/161108","note":"博客园博问，学生分享成品求理性指导（代码块已按清洗口径去除）","boundary_draft":"纯分享（converse）；'请大家理性指导'隐含对给定材料的反馈（review）——边界样本"}
