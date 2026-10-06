@@ -1,0 +1,7 @@
+{
+  "name": "prompt-optimizer",
+  "version": "0.1.0",
+  "description": "把一句口语化输入改写成结构化、意图明确、约束清晰的提示词：fast 档纯规则零成本，standard 档一次 DeepSeek 调用，deep 档三次调用含自检",
+  "author": { "name": "wtskd" },
+  "skills": "./skills"
+}

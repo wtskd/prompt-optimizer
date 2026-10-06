@@ -1,0 +1,19 @@
+{
+  "name": "dev-deepseek-prompt-optimizer",
+  "plugins": [
+    {
+      "name": "prompt-optimizer",
+      "source": "./prompt-optimizer",
+      "version": "0.1.0",
+      "description": "把一句口语化输入改写成结构化、意图明确、约束清晰的提示词：fast 档纯规则零成本，standard 档一次 DeepSeek 调用，deep 档三次调用含自检",
+      "displayName": "Prompt Optimizer",
+      "displayName_i18n": {
+        "zh-CN": "提示词优化器"
+      },
+      "description_i18n": {
+        "zh-CN": "聊天里用 /optimize-prompt 把一句口语化输入变成结构化提示词：fast 零成本 / standard 一次 DeepSeek 调用 / deep 三次调用含自检"
+      },
+      "category": "productivity"
+    }
+  ]
+}
