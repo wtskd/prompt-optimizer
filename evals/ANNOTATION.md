@@ -378,3 +378,28 @@ V2EX（`global.v2ex.co/go/python`、`/go/programmer` 及 3 个详情页）；采
 **无 `write` / `transform` / `review` / `converse` 样本**，`extract` 只有 z13 一条，且**没有一条**带 `deliverable_format`
 期望 → 本集量不到"交付物形态准确率"（两档都显示 n/a）。
 
+
+### 6.6 第六留出集（holdout6.jsonl，k01–k15）——预注册（早于盲标与引擎运行）
+
+- **采集**：2026-10-06，博客园博问，15 条（k01–k15），git 冻结提交 。清洗口径同 holdout5。
+- **覆盖目标**：补 converse（k14/k15，既有 7 集从未覆盖）；k13 为无信号探针；本集无 deliverable_format 期望（形态口径 n/a，局限照旧）。
+- **裁定规则（事先写死，早于看到引擎输出）**：与 holdout5 相同——**盲标优先**；可接受集合 = 盲标主标签 ∪ Lead 主标签（盲标给出多标签则并入）。最终 expect 主标签 = 盲标主标签，除非盲标主标签违反 §1 硬判据（如 decide 无已点名选项），此时记录违规并回退 Lead 主标签。
+- **Lead 预标注（Lead，2026-10-06，早于独立标注员）**：
+
+| id | Lead 主标签 | Lead 可接受集合 | 一句话依据 |
+|---|---|---|---|
+| k01 | code | code, plan | '如何解决'=要修复，现场详细；边界含排查思路 |
+| k02 | plan | plan | 求学习路径清单 |
+| k03 | plan | plan, decide | '用哪个'但未点名候选，求上手建议 |
+| k04 | analyze | analyze, learn | 现象时间线+就业判断，非概念 |
+| k05 | learn | learn, decide | 求人气工具信息，未点名候选 |
+| k06 | code | code, plan | 配置类'怎么设置' |
+| k07 | code | code | 求效果的实现写法 |
+| k08 | analyze | analyze, code | 渲染现象归因 |
+| k09 | code | code, analyze | '怎么解决'主导+归因猜测 |
+| k10 | plan | plan, learn, decide | 标题问概念、正文问分辨方法 |
+| k11 | learn | learn, decide | 求推荐清单，未点名 |
+| k12 | analyze | analyze | 单句现象归因 |
+| k13 | analyze | analyze, plan | 无信号探针：标题暗示遇问题，诉求不可判定 |
+| k14 | converse | converse | 纯情绪吐槽无实质请求 |
+| k15 | converse | converse, review | 纯分享+模糊的'理性指导' |
