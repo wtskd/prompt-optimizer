@@ -1,0 +1,33 @@
+// holdout3.jsonl —— 第三留出集（20 条，id w01–w20）
+// 用途：验证 2026-10-04 的判据边界修订（src/llm/analyze.js 的 TASK_GUIDE：① code 加「求成因即让位」例外
+//       ② analyze 扩到「任何已观察到的现象/差距的成因」 ③ learn 收窄为求理解）。
+// 铁律：本集**在任何改动之前先写标签**；一旦用于对外报告即声明消耗，不得再用于调参。
+// 来源（均为公开社区提问；采集时间 2026-10-04）：
+//   V2EX：https://global.v2ex.co/go/java?p=2 · https://global.v2ex.co/go/mysql
+//   OSCHINA 技术问答：https://www.oschina.net/question · https://www.oschina.net/question?catalog=6
+//   博客园博问：https://q.cnblogs.com/
+// 文本口径：去除 URL/图片/markdown 污染，保留原措辞与错别字；帖标题 + 楼主诉求句拼成一条输入。
+// 覆盖度声明：本集只有 code/plan/analyze/learn/decide 五类，**无 write/transform/extract/review/converse**；
+//   这是公开问答站的固有偏斜（论坛以「求助」为主），不是抽样疏忽。
+// 标注流程：Lead 先标主标签 → 独立标注员（全新上下文、禁读仓库、禁推测引擎行为、须抄原文证据）盲标
+//   → 按 ANNOTATION.md 的规则调解（不一致时主标签取盲标、可接受集合含 Lead 原标签），裁定必须早于跑引擎。
+{"id":"w01","text":"下面这段 Java 多态的代码，如何才能改为 Go、Python、JS、C++ 版本？","expect":{"task_type":"code"},"note":"交付物是代码本身（对已有代码改写/翻译）"}
+{"id":"w02","text":"屎山老项目想用 ai 实现自动化测试，有什么可落地的方案么","expect":{"task_type":"plan"},"note":"要可落地方案 = 可执行做法"}
+{"id":"w03","text":"java.lang.StackOverflowError 编译出错，堆栈信息在下面。真的是试了好多好多次办法都不行，换 idea，换 maven，换 lombok 版本，按照帖子修改启动栈大小都试过了，有人遇到过这样的问题吗","expect":{"task_type":["plan","code"]},"note":"报错 + 要解决（要给出改法）｜盲标 plan（替代 analyze）· Lead 原标 code"}
+{"id":"w04","text":"在启动网关微服务的时候报了个关于 redis 的错误无法解决，困扰 2 天了","expect":{"task_type":["plan","code"]},"note":"报错 + 求解决｜盲标 plan（替代 analyze）· Lead 原标 code"}
+{"id":"w05","text":"nexus 设置了匿名禁止登录，本地 maven 和 pom.xml 该如何配置才能下载 jar 呢？谢谢！","expect":{"task_type":"code"},"note":"交付物是配置文本/配置改法"}
+{"id":"w06","text":"安装 LLVM 时出现错误：CMake Error: The source directory \"/tmp/llvm-build/ -DLLVM_TARGETS_TO_BUILD=h\" does not exist","expect":{"task_type":["analyze","code"]},"note":"报错 + 求解决（构建命令/配置要改）｜盲标 analyze（替代 learn）· Lead 原标 code"}
+{"id":"w07","text":"连接 MySQL 很慢的问题","expect":{"task_type":"analyze"},"note":"已观察到的现象，未给做法诉求 → 归因"}
+{"id":"w08","text":"升级服务器后，mysql 性能反而更慢了，求排查思路","expect":{"task_type":"plan"},"note":"要「怎么排查」= 可执行步骤（与 w07 成对，检验 analyze/plan 边界）"}
+{"id":"w09","text":"mysql 自增 ID 突然变为 int 最大值问题","expect":{"task_type":"analyze"},"note":"现场现象归因，无「怎么改」"}
+{"id":"w10","text":"覆盖还原 data 文件夹后，mysql 无法启动了","expect":{"task_type":["analyze","code"]},"note":"故障 + 要修好（给改法）｜盲标 analyze（替代 plan）· Lead 原标 code"}
+{"id":"w11","text":"公司内网，怎么搭建主备 mysql，高可用。故障自动切。不买云服务","expect":{"task_type":"plan"},"note":"要做法/方案"}
+{"id":"w12","text":"MySQL 大表排序有什么好的方案？只能上 Mongo？","expect":{"task_type":"plan"},"note":"主诉求是要方案（结尾的反问不是二选一决策）","boundary":true}
+{"id":"w13","text":"数据库连接数超了如何解决","expect":{"task_type":"plan"},"note":"「如何解决」= 要做法"}
+{"id":"w14","text":"一台很好的服务器，想运行 win 和 linux 双系统，是在 win 服务器上安装 linux 虚拟机？还是在 linux 上安装 win 虚拟机？","expect":{"task_type":"decide"},"note":"用户已点名的两个方案里选一个"}
+{"id":"w15","text":"求助个人博客：为什么我的 blog 进不去啊 https://www.cnblogs.com/Jian-ak5ac-simple","expect":{"task_type":"analyze"},"note":"具体现场 + 问为什么 → 归因（本轮修订的重点类型）"}
+{"id":"w16","text":"博主，想做个程序实现扫二维码中奖自己选择中什么奖项怎么弄啊？","expect":{"task_type":"code"},"note":"要程序实现（交付物是代码）"}
+{"id":"w17","text":"这种透明方块怎么做？看到了这个效果觉得上面的透明方块很好看，有没有大佬知道怎么做这个效果？","expect":{"task_type":["plan","code","learn"]},"note":"要前端效果实现（交付物是代码/样式）｜盲标 plan（替代 code|learn）· Lead 原标 code","boundary":true}
+{"id":"w18","text":"博客园的随笔合集怎么设置为默认收起？怎么让随笔上的合集默认收起？一直是默认展开的，想让他默认是这样","expect":{"task_type":["code","plan"]},"note":"要设置做法（操作步骤）｜盲标 code（替代 plan）· Lead 原标 plan"}
+{"id":"w19","text":"PostGreSql 和 MySql 的优劣对比","expect":{"task_type":"learn"},"note":"求理解两者差异，未要求可执行做法（检验 learn 收窄后不误伤）"}
+{"id":"w20","text":"AI 编程基础版用哪个软件比较好上手，学过一点编程，不过现在应该也忘差不多了，求大佬赐教","expect":{"task_type":"decide"},"note":"在若干可选项里给推荐 → 选择类"}

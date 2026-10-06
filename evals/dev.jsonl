@@ -1,0 +1,20 @@
+{"id":"s01","text":"帮我做一个三个月的健身计划，要表格形式","expect":{"task_type":"plan","deliverable_format":"table"}}
+{"id":"s02","text":"把这段中文翻译成英文，保持专业术语","expect":{"task_type":"transform"}}
+{"id":"s03","text":"我想学 Rust，请解释一下所有权机制","expect":{"task_type":"learn"}}
+{"id":"s04","text":"分析一下这个季度的销售数据，找出下滑原因","expect":{"task_type":"analyze"}}
+{"id":"s05","text":"帮我写一段产品介绍文案，面向非技术决策者，语气要专业一点","expect":{"task_type":"write"}}
+{"id":"s06","text":"把这份周报改写成三点式清单，不超过 200 字","expect":{"task_type":"transform","deliverable_format":"list"}}
+{"id":"s07","text":"用英文回答：解释一下 CAP 定理","expect":{"task_type":"learn"}}
+{"id":"s08","text":"从这段话里提取出所有日期，输出 JSON","expect":{"task_type":"extract","deliverable_format":"json"}}
+{"id":"s09","text":"对比 Redis 和 Memcached，选哪个更合适","expect":{"task_type":"decide"}}
+{"id":"s10","text":"评审一下这段需求文档，指出逻辑漏洞","expect":{"task_type":"review"}}
+{"id":"s11","text":"这段代码报错了，帮我定位 bug","expect":{"task_type":"code"}}
+{"id":"s12","text":"制定一个三周的发布计划，列出里程碑","expect":{"task_type":"plan"}}
+{"id":"s13","text":"把下面的会议纪要整理成待办清单","expect":{"task_type":"extract","deliverable_format":"checklist"}}
+{"id":"s14","text":"写一篇 800 字的科普文章，讲清楚量子纠缠","expect":{"task_type":"write"}}
+{"id":"s15","text":"翻译这段话，不要直译，保持口语化","expect":{"task_type":"transform"}}
+{"id":"s16","text":"帮我制定学习路线图，详细一点，最好不超过 500 字","expect":{"task_type":"plan"}}
+{"id":"s17","text":"给客服团队写一份话术模板，语气亲切","expect":{"task_type":"write"}}
+{"id":"s18","text":"把这个需求拆解成开发任务，给出开发排期","expect":{"task_type":"plan"}}
+{"id":"s19","text":"抽取文中所有人名和机构名，用表格给出","expect":{"task_type":"extract","deliverable_format":"table"}}
+{"id":"s20","text":"写一段自我介绍，用于面试，控制在 200 字以内","expect":{"task_type":"write"}}

@@ -1,0 +1,51 @@
+{
+  "name": "prompt-optimizer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "把一句口语化输入改写成结构化、约束清晰的提示词：fast 档纯规则零成本，standard 档 DeepSeek 只做理解，CLI + 本地 Web 宿主",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "bin": {
+    "prompt-optimizer": "src/cli.js"
+  },
+  "scripts": {
+    "opt": "node src/cli.js",
+    "test": "node --test test/",
+    "test:files": "node test/intent-slots.test.js && node test/clarify.test.js && node test/clarify-round.test.js && node test/conflict-rules.test.js && node test/e2e.test.js && node test/llm.test.js && node test/llm-merge.test.js && node test/features.test.js && node test/server.test.js",
+    "eval": "node evals/run.js",
+    "eval:local": "node evals/run.js --file inputs.local.jsonl --record baseline.local.json",
+    "eval:diff": "node evals/run.js --diff baseline.fast.json",
+    "eval:estimate": "node evals/run.js --tier standard --file inputs.local.jsonl --estimate",
+    "eval:standard": "node evals/run.js --tier standard --file inputs.local.jsonl --record baseline.standard.json",
+    "eval:mock": "node evals/run.js --tier standard --file inputs.local.jsonl --limit 6 --mock mock.demo.jsonl",
+    "eval:compare": "node evals/run.js --compare baseline.local.json baseline.standard.json",
+    "eval:compare:mock": "node evals/run.js --compare baseline.local.json baseline.standard.mock.json",
+    "eval:recompute": "node evals/run.js --recompute baseline.standard.json --file inputs.local.jsonl --record baseline.standard.json",
+    "eval:holdout": "node evals/run.js --file holdout.jsonl --record baseline.fast.holdout.json",
+    "eval:holdout:standard": "node evals/run.js --tier standard --file holdout.jsonl --record baseline.standard.holdout.json --max-cost 0.1",
+    "eval:holdout:compare": "node evals/run.js --compare baseline.fast.holdout.json baseline.standard.holdout.json",
+    "eval:holdout2": "node evals/run.js --file holdout2.jsonl --record baseline.fast.holdout2.json",
+    "eval:holdout2:standard": "node evals/run.js --tier standard --file holdout2.jsonl --record baseline.standard.holdout2.json --max-cost 0.1",
+    "eval:holdout2:compare": "node evals/run.js --compare baseline.fast.holdout2.json baseline.standard.holdout2.json",
+    "eval:holdout2:recompute": "node evals/run.js --recompute baseline.standard.holdout2.json --file holdout2.jsonl --record baseline.standard.holdout2.json",
+    "eval:holdout3": "node evals/run.js --file holdout3.jsonl --record baseline.fast.holdout3.json",
+    "eval:holdout3:standard": "node evals/run.js --tier standard --file holdout3.jsonl --record baseline.standard.holdout3.json --max-cost 0.1",
+    "eval:holdout3:compare": "node evals/run.js --compare baseline.fast.holdout3.json baseline.standard.holdout3.json",
+    "eval:holdout4": "node evals/run.js --file holdout4.jsonl --record baseline.fast.holdout4.json",
+    "eval:holdout4:standard": "node evals/run.js --tier standard --file holdout4.jsonl --record baseline.standard.holdout4.json --max-cost 0.1",
+    "eval:holdout4:compare": "node evals/run.js --compare baseline.fast.holdout4.json baseline.standard.holdout4.json",
+    "eval:holdout5": "node evals/run.js --file holdout5.jsonl --record baseline.fast.holdout5.json",
+    "eval:holdout5:standard": "node evals/run.js --tier standard --file holdout5.jsonl --record baseline.standard.holdout5.json --max-cost 0.05",
+    "eval:holdout5:compare": "node evals/run.js --compare baseline.fast.holdout5.json baseline.standard.holdout5.json",
+    "eval:holdout5:recompute": "node evals/run.js --recompute baseline.standard.holdout5.json --file holdout5.jsonl --record baseline.standard.holdout5.json",
+    "start": "node src/server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

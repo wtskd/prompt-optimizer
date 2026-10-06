@@ -1,0 +1,6 @@
+// 把你真实场景的输入粘到这里（另存为 inputs.local.jsonl，该文件已在 .gitignore 中，不会入库）。
+// 一条一行，id 自己定。expect 可以先不写——先跑一次把预测值记成基线，标注之后再补。
+// 事后补标注就长这样：{"id":"me01","text":"……","expect":{"task_type":"transform","deliverable_format":"table"}}
+{"id":"me01","text":"把你平时工作里最常出现的一句原始需求粘在这里"}
+{"id":"me02","text":"第二条真实需求，注意保留你打字时的口语和错别字"}
+{"id":"me03","text":"这条故意不写 expect：先跑一次记录基线，之后再回来补标签"}

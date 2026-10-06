@@ -1,0 +1,11 @@
+// 离线 mock 覆盖：验证 Standard 档链路（意图合并 / 槽位合并 / 降级 / 成本记账），0 费用、可复现。
+// 用法：node evals/run.js --tier standard --file inputs.local.jsonl --limit 6 --mock mock.demo.jsonl
+// 说明：这里预置的是「一个称职的模型会给出的分析」，所以它只能证明管线通、不能证明模型准。
+//   u06 故意写成非法 JSON，用来验证降级路径（LLM_BAD_JSON → 规则层兜底 + exit 1 + 快照记 degraded）。
+//   u05 标 cached=true，用来验证缓存命中的记账口径（¥0、LLM 调用数 0）。
+{"id":"u01","analysis":{"task_type":"analyze","confidence":0.9,"domain":"software","deliverable_format":null,"slots":{"goal":{"value":"定位空指针的具体成因","confidence":0.8,"evidence":"这个空指针咋回事啊"}}}}
+{"id":"u02","analysis":{"task_type":"analyze","confidence":0.88,"domain":"software","deliverable_format":null,"slots":{"goal":{"value":"解释并发修改异常并给出修法","confidence":0.82,"evidence":"concurrentmodificationexception 怎么改"}}}}
+{"id":"u03","analysis":{"task_type":"analyze","confidence":0.9,"domain":"software","deliverable_format":null,"slots":{"goal":{"value":"查清事务不回滚的原因","confidence":0.85,"evidence":"这个事务为啥不回滚啊"}}}}
+{"id":"u04","analysis":{"task_type":"analyze","confidence":0.9,"domain":"software","deliverable_format":null,"slots":{"goal":{"value":"解释 Cannot find symbol 的报错原因","confidence":0.84,"evidence":"Cannot find symbol 我明明导入了啊"}}}}
+{"id":"u05","cached":true,"analysis":{"task_type":"analyze","confidence":0.86,"domain":"software","deliverable_format":null,"slots":{"goal":{"value":"解释容器内文件改动为何重启后丢失","confidence":0.8,"evidence":"容器重启就没了 什么情况"}}}}
+{"id":"u06","analysis":"这个报错的意思是编译器找不到符号，通常有三种可能：……（模型偶尔会返回散文而不是 JSON）"}

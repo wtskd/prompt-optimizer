@@ -1,0 +1,23 @@
+node_modules/
+*.log
+*.jsonl.trace
+.trace/
+dist/
+.env
+.env.local
+
+# 模型响应的磁盘缓存（standard 档：命中即不再花钱；含请求/响应原文，不入库）
+.cache/
+
+# 优化历史：一次优化一行，含用户真实输入（PII 风险），只留本地
+.prompt-optimizer/
+
+# 真实用户输入（可能含 PII / 客户数据）：只留在本地，不入库
+evals/inputs.local.jsonl
+evals/baseline.local.json
+
+.DS_Store
+Thumbs.db
+
+# 项目内部协作记忆（含内部信息，只留本地，不入库）
+AGENTS.md

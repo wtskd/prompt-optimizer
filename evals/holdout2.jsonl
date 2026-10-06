@@ -1,0 +1,38 @@
+// 第二留出集 holdout2（v01–v20）：来源是**公开社区里真实用户发的提问帖**（2026-10-04 采集）
+//   · 博问 q.cnblogs.com（多）、OSCHINA 技术问答 www.oschina.net/question、V2EX global.v2ex.co/go/{java,docker}
+//   · 采集时去掉了图片链接、URL 与 markdown 污染，**保留原作者的措辞与错别字**；帖子标题 + 楼主正文里的"诉求句"拼成一条输入
+// 用途：这批文本**从未进入任何调参、标签审计或模型运行**，是当前唯一能回答"泛化"的新证据。
+//
+// 标注流程（双盲 + 事先写死调解规则，ANNOTATION.md v1）：
+//   1) 第一轮：我按判据先标 v01–v20（**先于**跑引擎）；
+//   2) 第二轮：**全新上下文的独立标注员**盲标（禁读仓库任何文件、禁推测引擎行为、必须抄原文证据）；
+//   3) 调解：两轮主标签一致 → 单标签；不一致 → **主标签取盲标**，可接受集合含我的原标签（裁定在模型跑之前完成）。
+//   一致 15/20；5 条分歧全部落在 plan/code/analyze 边界：v03（我 code / 盲 plan）、v05（我 analyze / 盲 learn）、
+//   v10（我 code / 盲 plan）、v16（我 code / 盲 plan）、v19（我 code / 盲 plan）。盲标原话："全批 code 命中只有 v07。"
+//   我的偏差方向：把"现场 + 怎么解决/咋整"（v10/v16/v19）读成了 `code`，而判据里"报错 XXX 求解决"（v07）才是 code；
+//   带现场 + 自提假设的"怎么解决"应为 `plan`（要做法），成因未定的才是 `analyze`。
+//
+// 覆盖度声明（必须写进任何引用本集的报告）：本集只有 analyze / learn / plan / decide / code 五类，
+//   且 code 仅 1 条；**没有 write / transform / extract / review / converse 样本**；来源是论坛帖，
+//   措辞比聊天输入更书面，夹带平台操作类问题（OrbStack / 博客园 / cmder），与 inputs.local、holdout 的场景分布不同。
+// 铁律：一旦本集被用于对外报告，就不得再对着它调正则/词表/提示词；否则立刻作废为 dev 集（见 AGENTS.md 第 5 节）。
+{"id":"v01","text":"Checked Exception 和 Unchecked Exception 有什么区别？","expect":{"task_type":"learn"}}
+{"id":"v02","text":"请问我的 OrbStack 为什么总是弹出？","expect":{"task_type":"analyze"}}
+{"id":"v03","text":"如何删除 vim 中不可见乱码字符？文件用 vim 打开有乱码，怎么用命令把乱码替换掉","expect":{"task_type":["plan","code"]}}
+{"id":"v04","text":"windows 装 docker 哪种方式体验最好？","expect":{"task_type":"decide"}}
+{"id":"v05","text":"为什么国内公司宁愿改开源 JDK，也不愿从头做一门编程语言？","expect":{"task_type":["learn","analyze"]}}
+{"id":"v06","text":"agent 应用开发该如何学习？刚毕业想投身这个行业，具备编程能力但不知从何入手，请前辈指点迷津","expect":{"task_type":"plan"}}
+{"id":"v07","text":"SpringBoot 项目启动报 Error starting Tomcat context. Exception 问题求解决","expect":{"task_type":"code"}}
+{"id":"v08","text":"GEO 的底层逻辑是什么？","expect":{"task_type":"learn"}}
+{"id":"v09","text":"创建 docker 镜像时为了防止容器结束，运行 sleep infinity 和 tail -f /dev/null 哪个更好","expect":{"task_type":"decide"}}
+{"id":"v10","text":"我的博客全部随笔都强制要求登录才能查看，后台每篇权限都设置成公开了，请问怎么解决啊","expect":{"task_type":["plan","code"]}}
+{"id":"v11","text":"springboot 的 @Scheduled cron 延迟：k8s 部署了 4 副本，只有一个副本是 4 点钟执行任务，时区、代码版本、配置都检查过一致，没啥头绪，有大佬指点下吗","expect":{"task_type":"analyze"}}
+{"id":"v12","text":"小白求问如何让 OrbStack 走代理","expect":{"task_type":"plan"}}
+{"id":"v13","text":"arthas 为什么 watch 命令用不了？sm 命令都查到类和方法了，watch 命令监控不了，求大佬解答","expect":{"task_type":"analyze"}}
+{"id":"v14","text":"一个后台对接多个 app，如何动态获取 appid？","expect":{"task_type":"plan"}}
+{"id":"v15","text":"在特定（源码解析）任务上，通用 agent 为什么比不过专用的？","expect":{"task_type":"analyze"}}
+{"id":"v16","text":"只显示文字不显示图片怎么解决？是不是涉及到页面路径了","expect":{"task_type":["plan","code"]}}
+{"id":"v17","text":"Homelab 部署的服务用 latest 还是固定版本？","expect":{"task_type":"decide"}}
+{"id":"v18","text":"逆向工程小白该怎么学习？看了网上的介绍要学 c/c++ 和汇编和计算机系统，但不知道接下来学什么，有大佬给介绍吗","expect":{"task_type":"plan"}}
+{"id":"v19","text":"win 下面的 cmder 中的 vim 中文乱码，试了各种解决方式还是没弄好，咋整","expect":{"task_type":["plan","code"]}}
+{"id":"v20","text":"请教一下，springboot 单元测试启动报错？报 Caused by: java.lang.ClassCastException: StandardEnvironment cannot be cast to StandardServletEnvironment，是哪里配置错了还是框架不支持","expect":{"task_type":"analyze"}}

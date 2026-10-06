@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>prompt-optimizer · 提示词优化器</title>
+<style>
+  :root {
+    --bg: #0f1115; --panel: #171a21; --border: #2a2f3a; --text: #e6e9ef;
+    --dim: #8b93a3; --accent: #4f8cff; --ok: #3fb96f; --warn: #e0a83c; --err: #e06060;
+    --add: #16321f; --del: #3a1d1d;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; }
+  header { display: flex; align-items: baseline; gap: 12px; padding: 14px 20px;
+           border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 16px; margin: 0; }
+  header .sub { color: var(--dim); font-size: 12px; }
+  main { display: grid; grid-template-columns: 1fr 340px; gap: 16px; padding: 16px 20px; max-width: 1280px; margin: 0 auto; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .panel h2 { font-size: 13px; margin: 0 0 10px; color: var(--dim); font-weight: 600; }
+  label.opt { margin-right: 12px; color: var(--text); font-size: 13px; cursor: pointer; }
+  textarea { width: 100%; min-height: 96px; background: var(--bg); color: var(--text);
+             border: 1px solid var(--border); border-radius: 6px; padding: 10px; resize: vertical; }
+  .row { display: flex; gap: 10px; align-items: center; margin: 10px 0; flex-wrap: wrap; }
+  select, button { background: var(--bg); color: var(--text); border: 1px solid var(--border);
+                   border-radius: 6px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  #progress { font: 11px/1.5 Consolas, monospace; color: var(--dim); white-space: pre-wrap;
+              word-break: break-all; max-height: 120px; overflow: auto;
+              background: var(--bg); border: 1px dashed var(--border); border-radius: 6px;
+              padding: 8px; display: none; }
+  #result { font: 13px/1.6 Consolas, "Microsoft YaHei Mono", monospace; white-space: pre-wrap;
+            background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+            padding: 12px; max-height: 480px; overflow: auto; }
+  .badge { display: inline-block; font-size: 11px; padding: 1px 8px; border-radius: 10px;
+           border: 1px solid var(--border); color: var(--dim); margin-right: 6px; }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  .badge.warn { color: var(--warn); border-color: var(--warn); }
+  .badge.err { color: var(--err); border-color: var(--err); }
+  .diff-add { background: var(--add); display: block; }
+  .diff-del { background: var(--del); display: block; text-decoration: line-through; color: var(--dim); }
+  .banner { font-size: 12px; padding: 8px 10px; border-radius: 6px; margin-top: 10px; display: none; }
+  .banner.err { background: var(--del); color: var(--err); border: 1px solid var(--err); }
+  .banner.warn { background: #33290f; color: var(--warn); border: 1px solid var(--warn); }
+  .q-item { border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+  .q-item .q { font-size: 13px; margin-bottom: 6px; }
+  .q-item input { width: 100%; background: var(--bg); color: var(--text);
+                  border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px; }
+  .hist-item { border-bottom: 1px solid var(--border); padding: 8px 4px; cursor: pointer; }
+  .hist-item:hover { background: var(--bg); }
+  .hist-item .t { color: var(--dim); font-size: 11px; }
+  .hist-item .x { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .muted { color: var(--dim); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>prompt-optimizer</h1>
+  <span class="sub">把一句口语化输入改写成结构化、约束清晰的提示词 · fast 档零成本 / standard 档 1 次 DeepSeek 调用</span>
+</header>
+
+<main>
+  <section>
+    <div class="panel">
+      <h2>① 你的原始输入</h2>
+      <textarea id="input" placeholder="例：帮我写个脚本把文件夹里的图片批量压缩，报错了不知道咋整"></textarea>
+      <div class="row">
+        <label>档位
+          <select id="tier">
+            <option value="fast">fast（规则层，0 成本）</option>
+            <option value="standard" selected>standard（DeepSeek 分析，流式）</option>
+          </select>
+        </label>
+        <span id="goals">
+          <label class="opt"><input type="checkbox" value="concise">更简洁</label>
+          <label class="opt"><input type="checkbox" value="specific">更具体</label>
+          <label class="opt"><input type="checkbox" value="context">补充上下文</label>
+          <label class="opt"><input type="checkbox" value="format">调整格式</label>
+        </span>
+        <label class="opt"><input type="checkbox" id="wantDiff" checked>显示对比</label>
+        <button class="primary" id="run">优化</button>
+      </div>
+      <div id="progress"></div>
+      <div class="banner err" id="errBox"></div>
+      <div class="banner warn" id="warnBox"></div>
+    </div>
+
+    <div class="panel" id="qPanel" style="display:none">
+      <h2>② 待澄清问题（回答后重新优化，standard 档第二次不重复花钱）</h2>
+      <div id="qList"></div>
+      <div class="row"><button class="primary" id="answerBtn">回答并重新优化</button>
+        <button id="skipBtn">跳过（按假设继续）</button></div>
+    </div>
+
+    <div class="panel" id="resultPanel" style="display:none">
+      <h2>③ 优化结果
+        <span id="metaBadges" style="float:right"></span></h2>
+      <div class="row">
+        <button id="copyBtn">复制结果</button>
+        <button id="diffToggle">切换：原文对比 / 纯结果</button>
+      </div>
+      <div id="result"></div>
+    </div>
+  </section>
+
+  <aside class="panel">
+    <h2>优化历史 <button id="histRefresh" style="float:right;padding:2px 8px">刷新</button></h2>
+    <div id="histList" class="muted">暂无记录</div>
+    <div class="row"><button id="histClear" style="margin-top:8px">清空历史</button></div>
+  </aside>
+</main>
+
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+let lastPayload = null;   // 最近一次 done 的完整返回
+let lastDiffOn = true;    // 结果面板当前是否显示对比视图
+
+const show = (el, on) => { el.style.display = on ? 'block' : 'none'; };
+function banner(el, msg) { el.textContent = msg || ''; show(el, Boolean(msg)); }
+function setBusy(on) { $('run').disabled = on; $('run').textContent = on ? '优化中…' : '优化'; }
+
+function selectedGoals() {
+  return [...$('goals').querySelectorAll('input:checked')].map((c) => c.value);
+}
+
+function renderBadges(meta) {
+  const parts = [];
+  parts.push(`<span class="badge">${meta.tier}</span>`);
+  parts.push(`<span class="badge">${meta.totalMs ?? meta.ms}ms</span>`);
+  if (meta.llm) {
+    parts.push(`<span class="badge ${meta.llm.cached ? 'ok' : ''}">¥${Number(meta.llm.costYuan ?? 0).toFixed(4)}${meta.llm.cached ? ' 缓存' : ''}</span>`);
+  }
+  if (meta.degraded) parts.push('<span class="badge err">已降级到规则层</span>');
+  if (meta.violations?.length) parts.push(`<span class="badge err">违规 ${meta.violations.length}</span>`);
+  if (meta.historyId) parts.push(`<span class="badge">历史 ${meta.historyId}</span>`);
+  $('metaBadges').innerHTML = parts.join('');
+}
+
+function renderResult() {
+  if (!lastPayload) return;
+  const el = $('result');
+  if (lastDiffOn && lastPayload.diff?.changes?.length) {
+    el.innerHTML = lastPayload.diff.changes
+      .map((c) => c.t === '+'
+        ? `<span class="diff-add">+ ${escapeHtml(c.line)}</span>`
+        : c.t === '-'
+          ? `<span class="diff-del">- ${escapeHtml(c.line)}</span>`
+          : escapeHtml(c.line))
+      .join(''); // 行元素是 display:block，不能用 \n 连接（否则出现双倍空行）
+  } else {
+    el.textContent = lastPayload.prompt;
+  }
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function renderQuestions(questions) {
+  const panel = $('qPanel');
+  if (!questions?.length) { show(panel, false); return; }
+  $('qList').innerHTML = questions.map((q) => `
+    <div class="q-item" data-qid="${escapeHtml(q.id)}">
+      <div class="q">${q.blocking ? '【必答】' : '【可选】'}${escapeHtml(q.question)}
+        ${q.options?.length ? `<span class="muted">（参考：${escapeHtml(q.options.join(' / '))}）</span>` : ''}</div>
+      <input type="text" placeholder="你的回答（留空 = 跳过该条）">
+    </div>`).join('');
+  show(panel, true);
+}
+
+function handleDone(payload) {
+  lastPayload = payload;
+  lastDiffOn = $('wantDiff').checked;
+  banner($('errBox'), '');
+  banner($('warnBox'), payload.meta.degraded
+    ? `⚠ 模型分析失败，本次输出来自规则层 fast 路径（${payload.meta.llm?.code ?? ''}）` : '');
+  renderBadges(payload.meta);
+  renderResult();
+  renderQuestions(payload.questions);
+  show($('resultPanel'), true);
+  loadHistory();
+}
+
+async function run(answers) {
+  const text = $('input').value.trim();
+  if (!text) { banner($('errBox'), '请先输入要优化的原始提示词。'); return; }
+  setBusy(true);
+  banner($('errBox'), '');
+  const progress = $('progress');
+  progress.textContent = '';
+  show(progress, true);
+  const body = {
+    text,
+    tier: $('tier').value,
+    goal: selectedGoals(),
+    diff: $('wantDiff').checked,
+    ask: true,
+    stream: $('tier').value === 'standard',
+    ...(answers ? { answers } : {}),
+  };
+  try {
+    const res = await fetch('/api/optimize', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({ error: res.statusText }));
+      banner($('errBox'), `错误（${e.code ?? res.status}）：${e.error}`);
+      return;
+    }
+    if (!body.stream) { handleDone(await res.json()); return; }
+    // SSE：delta = 分析增量（standard 档）；done = 完整结果；error = 显式失败
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let i;
+      while ((i = buf.indexOf('\n\n')) >= 0) {
+        const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
+        const ev = (chunk.match(/^event: (.+)$/m) || [])[1];
+        const dataRaw = (chunk.match(/^data: (.+)$/m) || [])[1];
+        if (!ev || dataRaw === undefined) continue;
+        const data = JSON.parse(dataRaw);
+        if (ev === 'delta') { progress.textContent += data.text; progress.scrollTop = progress.scrollHeight; }
+        else if (ev === 'done') { show(progress, false); handleDone(data); }
+        else if (ev === 'error') { show(progress, false); banner($('errBox'), `错误（${data.code}）：${data.message}`); }
+      }
+    }
+  } catch (e) {
+    banner($('errBox'), `请求失败：${e.message}`);
+  } finally {
+    setBusy(false);
+  }
+}
+
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history?n=50');
+    const { items } = await res.json();
+    const el = $('histList');
+    if (!items.length) { el.textContent = '暂无记录'; return; }
+    el.innerHTML = items.reverse().map(({ no, record }) => `
+      <div class="hist-item" data-no="${no}">
+        <div class="t">#${no} ${escapeHtml(record.at?.slice(0, 19).replace('T', ' '))} ${escapeHtml(record.tier)}${record.degraded ? ' [降级]' : ''} ¥${Number(record.costYuan ?? 0).toFixed(4)}</div>
+        <div class="x">${escapeHtml(record.input)}</div>
+      </div>`).join('');
+    el.querySelectorAll('.hist-item').forEach((item) => {
+      item.addEventListener('click', () => showHistory(item.dataset.no));
+    });
+  } catch { /* 历史加载失败不影响主流程 */ }
+}
+
+async function showHistory(no) {
+  try {
+    const res = await fetch(`/api/history/${no}`);
+    if (!res.ok) return;
+    const rec = await res.json();
+    $('input').value = rec.input;
+    lastPayload = { prompt: rec.prompt, meta: { tier: rec.tier, totalMs: rec.totalMs, llm: { costYuan: rec.costYuan, cached: false }, degraded: rec.degraded, historyId: rec.id, questions: [], violations: [] }, diff: null, questions: [] };
+    lastDiffOn = false;
+    renderResult();
+    renderBadges(lastPayload.meta);
+    renderQuestions([]);
+    show($('resultPanel'), true);
+  } catch { /* 忽略 */ }
+}
+
+$('run').addEventListener('click', () => run(null));
+$('answerBtn').addEventListener('click', () => {
+  const answers = {};
+  $('qList').querySelectorAll('.q-item').forEach((item) => {
+    const v = item.querySelector('input').value.trim();
+    if (v) answers[item.dataset.qid] = v;
+  });
+  run(Object.keys(answers).length ? answers : null);
+});
+$('skipBtn').addEventListener('click', () => run(null));
+$('copyBtn').addEventListener('click', async () => {
+  if (!lastPayload) return;
+  try { await navigator.clipboard.writeText(lastPayload.prompt); $('copyBtn').textContent = '已复制 ✓'; }
+  catch { $('copyBtn').textContent = '复制失败'; }
+  setTimeout(() => { $('copyBtn').textContent = '复制结果'; }, 1500);
+});
+$('diffToggle').addEventListener('click', () => {
+  lastDiffOn = !lastDiffOn;
+  renderResult();
+});
+$('histRefresh').addEventListener('click', loadHistory);
+$('histClear').addEventListener('click', async () => {
+  if (!confirm('确定清空全部优化历史？')) return;
+  await fetch('/api/history', { method: 'DELETE' });
+  loadHistory();
+});
+$('tier').addEventListener('change', () => { /* 档位随每次请求发送，无需额外处理 */ });
+
+loadHistory();
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+// 独立留出集（holdout）：用户 m00416 给的 40 条候选里、**未被 inputs.local.jsonl 使用**的那 20 条（2026-10-04）
+// 用途：这 20 条从未进入任何一次调参 / 标签审计 / 模型运行 —— 这是目前唯一能回答"泛化不泛化"的证据。
+// 标签：第一轮由我按 evals/ANNOTATION.md v1 判据标注（先于跑引擎）；独立标注员（全新上下文、禁读仓库、
+//       禁猜测引擎行为、必须抄原文证据）盲标复核 → 一致 15/20，分歧 5 条（h05/h12/h14/h16/h17）。
+//       本次调解规则（写死在 ANNOTATION.md 第 6 节）：双方分歧且判据不能判谁对时，**主标签取盲标（独立
+//       标注员）**，可接受集合含我的原标签；两方都认为两可的（h01/h13）才给多标签。调解时尚未看到模型
+//       判定，故不存在"为迁就模型而改标签"。
+// 铁律：本集合一旦用于对外报告，就**不得再对着它调正则/词表/提示词**；否则立刻作废。
+{"id":"h01","text":"codex 在 vscode 里和直接 chatgpt 网页版有什么区别 写代码用哪个更好","expect":{"task_type":["decide","learn"]}}
+{"id":"h02","text":"springboot 配置文件 yml 格式老报错 是不是缩进问题啊","expect":{"task_type":"analyze"}}
+{"id":"h03","text":"数据库连接池满了 报 too many connections 要调哪个参数","expect":{"task_type":"plan"}}
+{"id":"h04","text":"maven clean install 一直卡在 resolving dependencies 是镜像问题吗","expect":{"task_type":"analyze"}}
+{"id":"h05","text":"让 claude 写了个贪吃蛇 用 ccglass 看它发给模型的请求 发现 system prompt 好长","expect":{"task_type":["converse","analyze"]}}
+{"id":"h06","text":"这个接口突然变慢了 昨天还好好的 是不是有人改了啥","expect":{"task_type":"analyze"}}
+{"id":"h07","text":"redis 咋连啊 密码在哪配呢 springboot 里","expect":{"task_type":"plan"}}
+{"id":"h08","text":"jar 包双击运行闪退，cmd 里 java -jar 报 no main manifest attribute 咋整","expect":{"task_type":"code"}}
+{"id":"h09","text":"mybatis 的 mapper 找不到 报 invalid bound statement 咋解决","expect":{"task_type":"code"}}
+{"id":"h10","text":"微服务之间调用超时 一般设多少秒合适呢","expect":{"task_type":"plan"}}
+{"id":"h11","text":"tomcat 端口被占用 关不掉 不想重启电脑 有没有办法直接 kill","expect":{"task_type":"plan"}}
+{"id":"h12","text":"spring 的 @Transactional 为啥有时候不生效 是不是要加在 public 方法上","expect":{"task_type":["learn","analyze"]}}
+{"id":"h13","text":"es 查询慢 分片是不是设多了 一般几个合适","expect":{"task_type":["analyze","plan"]}}
+{"id":"h14","text":"服了 这个依赖冲突到底怎么排 排除半天还是报错","expect":{"task_type":["plan","code"]}}
+{"id":"h15","text":"jvm 调优一般看哪些参数啊 xmx xms 设置多少合适","expect":{"task_type":"plan"}}
+{"id":"h16","text":"求助佬们 这个 Invalid prompt 的账号还有救吗","expect":{"task_type":["plan","analyze"]}}
+{"id":"h17","text":"chatgpt 多个 team 账号 如何切换 codex 有没有推荐的切号工具","expect":{"task_type":["plan","decide"]}}
+{"id":"h18","text":"这个日志级别怎么动态改啊 不想重启服务呀","expect":{"task_type":"plan"}}
+{"id":"h19","text":"有没有办法让这个循环快点 数据量有点大 几万条","expect":{"task_type":"code"}}
+{"id":"h20","text":"spring boot 启动就报错 Could not find or load main class 网上说的都试了没用","expect":{"task_type":"code"}}

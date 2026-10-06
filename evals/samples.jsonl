@@ -1,0 +1,30 @@
+{"id":"b01","text":"帮我把这段话回得客气点，但意思还是拒绝","expect":{"task_type":"transform"}}
+{"id":"b02","text":"上面那个方案再压缩一下，老板只看三行","expect":{"task_type":"transform"}}
+{"id":"b03","text":"这周写了三版文案都被毙了，帮我看看问题出在哪","expect":{"task_type":"analyze"}}
+{"id":"b04","text":"帮我把这份会议记录里的待办事项挑出来","expect":{"task_type":"extract","deliverable_format":"checklist"}}
+{"id":"b05","text":"我们该不该把登录页的首屏广告去掉","expect":{"task_type":"decide"}}
+{"id":"b06","text":"解释下为什么 Kafka 会丢消息","expect":{"task_type":"learn"}}
+{"id":"b07","text":"帮我把这段 SQL 改成不用子查询的写法","expect":{"task_type":"code"}}
+{"id":"b08","text":"帮我给这版活动写个朋友圈转发文案","expect":{"task_type":"write"}}
+{"id":"b09","text":"这段话是我领导写的，帮我翻成英文发给他","expect":{"task_type":"transform"}}
+{"id":"b10","text":"帮我算一下这个方案三个月能回本吗","expect":{"task_type":"analyze"}}
+{"id":"b11","text":"帮我把这份周报里的数据核对一遍，看有没有前后矛盾","expect":{"task_type":"review"}}
+{"id":"b12","text":"给我一个从零开始学数据分析的路径","expect":{"task_type":"plan"}}
+{"id":"b13","text":"这个接口偶尔超时，怎么定位","expect":{"task_type":"code"}}
+{"id":"b14","text":"帮我把这三家的报价整理成一张表","expect":{"task_type":"extract","deliverable_format":"table"}}
+{"id":"b15","text":"客户投诉说我们的退货流程太绕，帮我想想怎么改","expect":{"task_type":"plan"}}
+{"id":"b16","text":"把刚才那版标题再给我多来几个","expect":{"task_type":"write"}}
+{"id":"b17","text":"帮我看下这份合同里有哪些对我不利的地方","expect":{"task_type":"review"}}
+{"id":"b18","text":"我想知道这个指标突然涨了是不是因为上周的活动","expect":{"task_type":"analyze"}}
+{"id":"b19","text":"帮我把这段自我介绍改成更自信的语气","expect":{"task_type":"transform"}}
+{"id":"b20","text":"明天面试，帮我准备几个可能会问的问题","expect":{"task_type":"plan"}}
+{"id":"b21","text":"帮我把这份 PDF 里的表格转成 Excel 能用的格式","expect":{"task_type":"transform","deliverable_format":"table"}}
+{"id":"b22","text":"这几个方案你帮我挑一个，理由说清楚","expect":{"task_type":"decide"}}
+{"id":"b23","text":"帮我把这段技术文档改成人话，给销售看","expect":{"task_type":"transform"}}
+{"id":"b24","text":"我们下季度的 OKR 该怎么定","expect":{"task_type":"plan"}}
+{"id":"b25","text":"这段代码为什么在并发下会出错","expect":{"task_type":"code"}}
+{"id":"b26","text":"帮我把客户邮件里的需求点提炼出来","expect":{"task_type":"extract"}}
+{"id":"b27","text":"帮我把这个 bug 的影响范围说清楚，我要汇报","expect":{"task_type":"analyze"}}
+{"id":"b28","text":"帮我把这份文档的目录结构重新排一下","expect":{"task_type":"transform"}}
+{"id":"b29","text":"这句话我总觉得不通顺，帮我改改","expect":{"task_type":"transform"}}
+{"id":"b30","text":"帮我把这个 demo 的演示脚本写出来，5 分钟讲完","expect":{"task_type":"write"}}
