@@ -43,6 +43,10 @@ export DEEPSEEK_API_KEY=sk-xxx             # Windows PowerShell: $env:DEEPSEEK_A
 node src/cli.js --tier standard "帮我看看这个报错到底啥原因"      # 单次约 ¥0.0009（deepseek-chat）
 node src/cli.js --tier standard --max-cost 0.1 "写个周报"
 
+# 浏览器插件（MV3，与 CLI/Web 宿主共用同一份确定性管线）
+# 安装：chrome://extensions → 开发者模式 → 加载已解压的扩展程序 → 选 extension/ 目录
+# key 只存本机 chrome.storage；fast 档无需 key；详见 extension/README.md
+
 # 常用功能旗标（两档通用，goal 只影响渲染层、零成本）
 node src/cli.js --goal concise,format "帮我写周报"   # 自定义优化目标：concise|specific|context|format
 node src/cli.js --tier standard --stream "写个爬虫"  # 流式看模型分析过程（打到 stderr，stdout 可管道）
@@ -378,6 +382,8 @@ src/       内核（schema / ir / intent / slots / clarify / rules / conflict / 
 src/llm/   provider.js（OpenAI 兼容传输层 + SSE 流式 + 成本护栏 + 缓存）/ analyze.js（顺序判据提示词、解析、合并留痕）
 src/       server.js（零依赖 Web 宿主：/api/optimize 同步+SSE 流式 / /api/history）
 src/web/   index.html（单文件界面：流式进度、澄清面板、diff 视图、复制、历史侧栏）
+extension/ 浏览器 MV3 插件（popup + options；extension/src 由 npm run build:ext 从 src/ 同步）
+scripts/   build-extension.mjs（插件构建：同步核心模块的导入闭包）
 test/      89 个 node:test 用例（10 个文件：clarify-round / llm / llm-merge / features / server / deep 等）
 evals/     dev.jsonl（回归 20 条）/ samples.jsonl（盲测 30 条）/ inputs.local.example.jsonl（真实输入落点）
            holdout.jsonl … holdout5.jsonl（五批独立留出集，前四批已按铁律消耗，干净数字的来龙去脉见 ANNOTATION.md）

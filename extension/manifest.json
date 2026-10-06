@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "prompt-optimizer",
+  "version": "0.1.0",
+  "description": "把一句口语化输入改写成结构化、约束清晰的提示词。LLM 只做理解，渲染 100% 确定性（DeepSeek）",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "prompt-optimizer"
+  },
+  "options_page": "options.html",
+  "host_permissions": ["https://api.deepseek.com/*"],
+  "permissions": ["storage"]
+}

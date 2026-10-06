@@ -44,7 +44,8 @@
     "eval:holdout5:standard": "node evals/run.js --tier standard --file holdout5.jsonl --record baseline.standard.holdout5.json --max-cost 0.05",
     "eval:holdout5:compare": "node evals/run.js --compare baseline.fast.holdout5.json baseline.standard.holdout5.json",
     "eval:holdout5:recompute": "node evals/run.js --recompute baseline.standard.holdout5.json --file holdout5.jsonl --record baseline.standard.holdout5.json",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "build:ext": "node scripts/build-extension.mjs"
   },
   "dependencies": {},
   "devDependencies": {}

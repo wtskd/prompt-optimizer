@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>prompt-optimizer 设置</title>
+<style>
+  body { font: 14px/1.6 "Segoe UI", "Microsoft YaHei", sans-serif; background: #0f1115; color: #e6e9ef;
+         max-width: 560px; margin: 24px auto; padding: 0 16px; }
+  h1 { font-size: 16px; } h2 { font-size: 13px; color: #8b93a3; }
+  input { width: 100%; background: #171a21; color: #e6e9ef; border: 1px solid #2a2f3a;
+          border-radius: 6px; padding: 8px 10px; box-sizing: border-box; }
+  .hint { color: #8b93a3; font-size: 12px; }
+  button { background: #4f8cff; border: none; color: #fff; border-radius: 6px; padding: 8px 16px; cursor: pointer; }
+  #saved { color: #3fb96f; margin-left: 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>prompt-optimizer 设置</h1>
+<h2>DeepSeek API key（只保存在本机浏览器存储里，不经过任何第三方服务器）</h2>
+<input type="password" id="key" placeholder="sk-...">
+<p class="hint">在 <a href="https://platform.deepseek.com" target="_blank" style="color:#4f8cff">platform.deepseek.com</a> 创建。fast 档不需要 key。</p>
+<button id="save">保存</button><span id="saved"></span>
+<script src="options.js"></script>
+</body>
+</html>

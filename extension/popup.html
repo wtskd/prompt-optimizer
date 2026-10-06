@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --bg:#0f1115; --panel:#171a21; --border:#2a2f3a; --text:#e6e9ef; --dim:#8b93a3;
+          --accent:#4f8cff; --ok:#3fb96f; --err:#e06060; --add:#16321f; --del:#3a1d1d; }
+  body { margin: 0; background: var(--bg); color: var(--text); width: 400px;
+         font: 13px/1.55 "Segoe UI", "Microsoft YaHei", sans-serif; }
+  header { display: flex; align-items: baseline; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  header b { font-size: 13px; } header span { color: var(--dim); font-size: 11px; }
+  main { padding: 10px 12px; }
+  textarea { width: 100%; min-height: 60px; background: var(--panel); color: var(--text);
+             border: 1px solid var(--border); border-radius: 6px; padding: 8px; resize: vertical; box-sizing: border-box; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
+  select, button { background: var(--panel); color: var(--text); border: 1px solid var(--border);
+                   border-radius: 5px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button:disabled { opacity: .5; }
+  label.opt { font-size: 12px; cursor: pointer; }
+  #progress { font: 10px/1.4 Consolas, monospace; color: var(--dim); white-space: pre-wrap; word-break: break-all;
+              max-height: 72px; overflow: auto; background: var(--bg); border: 1px dashed var(--border);
+              border-radius: 5px; padding: 6px; display: none; }
+  #result { font: 11px/1.5 Consolas, "Microsoft YaHei Mono", monospace; white-space: pre-wrap;
+            background: var(--panel); border: 1px solid var(--border); border-radius: 6px;
+            padding: 8px; max-height: 260px; overflow: auto; }
+  .badge { display: inline-block; font-size: 10px; padding: 0 6px; border-radius: 8px;
+           border: 1px solid var(--border); color: var(--dim); margin-right: 4px; }
+  .badge.err { color: var(--err); border-color: var(--err); }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  .diff-add { background: var(--add); display: block; }
+  .diff-del { background: var(--del); display: block; color: var(--dim); text-decoration: line-through; }
+  .banner { font-size: 11px; padding: 6px 8px; border-radius: 5px; margin-top: 8px; display: none; color: var(--err); background: var(--del); border: 1px solid var(--err); }
+  .banner.warn { color: #e0a83c; background: #33290f; border-color: #e0a83c; }
+  .q-item { border: 1px solid var(--border); border-radius: 5px; padding: 6px 8px; margin-bottom: 6px; }
+  .q-item input { width: 100%; background: var(--bg); color: var(--text); border: 1px solid var(--border);
+                  border-radius: 4px; padding: 4px 6px; box-sizing: border-box; }
+  #hist { max-height: 130px; overflow: auto; }
+  .hist-item { border-bottom: 1px solid var(--border); padding: 5px 4px; cursor: pointer; }
+  .hist-item:hover { background: var(--panel); }
+  .hist-item .t { color: var(--dim); font-size: 10px; }
+  .hist-item .x { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .muted { color: var(--dim); font-size: 11px; }
+  h2 { font-size: 12px; color: var(--dim); margin: 12px 0 6px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<header><b>prompt-optimizer</b><span>LLM 只做理解，渲染 100% 确定性</span><a href="options.html" target="_blank" style="margin-left:auto;font-size:11px">设置</a></header>
+<main>
+  <textarea id="input" placeholder="粘贴或输入一句口语化的提示词…"></textarea>
+  <div class="row">
+    <select id="tier">
+      <option value="fast">fast（0 成本）</option>
+      <option value="standard" selected>standard（¥0.001）</option>
+      <option value="deep">deep（3 次调用+自检）</option>
+    </select>
+    <label class="opt"><input type="checkbox" value="concise">简洁</label>
+    <label class="opt"><input type="checkbox" value="specific">具体</label>
+    <label class="opt"><input type="checkbox" value="context">上下文</label>
+    <label class="opt"><input type="checkbox" value="format">格式</label>
+  </div>
+  <div class="row">
+    <label class="opt"><input type="checkbox" id="wantDiff" checked>对比</label>
+    <button class="primary" id="run">优化</button>
+  </div>
+  <div id="progress"></div>
+  <div class="banner" id="errBox"></div>
+  <div class="banner warn" id="warnBox"></div>
+
+  <div id="qPanel" style="display:none">
+    <h2>待澄清（standard/deep 第二次回答不重复花钱）</h2>
+    <div id="qList"></div>
+    <div class="row"><button class="primary" id="answerBtn">回答并重新优化</button>
+      <button id="skipBtn">跳过</button></div>
+  </div>
+
+  <div id="resultPanel" style="display:none">
+    <h2>优化结果 <span id="badges" style="float:right"></span></h2>
+    <div class="row"><button id="copyBtn">复制</button><button id="diffToggle">切换对比/纯结果</button></div>
+    <div id="result"></div>
+  </div>
+
+  <h2>历史 <button id="histClear" style="float:right;padding:1px 8px">清空</button></h2>
+  <div id="hist" class="muted">暂无记录</div>
+</main>
+<script type="module" src="popup.js"></script>
+</body>
+</html>
