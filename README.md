@@ -1,14 +1,30 @@
-# prompt-optimizer（v0.1.0：Fast 档内核 + Standard 档 LLM 适配器 + 评测闭环）
+# prompt-optimizer
 
 把用户的一句原始输入，改写为**结构化、意图明确、约束清晰**的提示词。
 
-这是 `docs/prompt-optimizer-plugin-design.md` 设计实现的**第一层主干 + 第二层适配器 + 评测闭环**：
+<p align="center">
+  <img src="docs/web-ui.png" alt="Web 宿主界面：流式分析 → 结果/对比 → 澄清追问 → 历史" width="860">
+</p>
 
-| 档位 | 是否调 LLM | 现状 | 定位 |
+[![CI](https://github.com/wtskd/prompt-optimizer/actions/workflows/ci.yml/badge.svg)](https://github.com/wtskd/prompt-optimizer/actions/workflows/ci.yml)
+![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?logo=node.js)
+![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)
+![tests](https://img.shields.io/badge/tests-79%20pass-2ea44f)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+**为什么是这个形态**：多数"提示词优化器"是把你的话丢给 LLM 重写一遍——结果不可复现、不可审计、每次都花钱。本项目反过来：**LLM 只负责"看懂"（意图分类 + 槽位抽取），改写本身由确定性代码完成**，因此输出可回放、可 diff、可离线（fast 档零成本毫秒级），并且有一整套留出集评测在盯着数字。
+
+| 档位 | LLM 调用 | 成本 | 定位 |
 |---|---|---|---|
-| `fast` | 0 次 | ✅ 已完成 | 纯本地规则 + 模板，可离线、可复现、零 API 成本；**架构主干**，不是降级版 |
-| `standard` | 1 次（意图/槽位分析） | ✅ 已实现并**真实端点验证**（2026-10-04，deepseek-chat；真实 20 条 + 留出集 20 条 + 第二留出集 20 条，合计 ¥0.0905） | LLM **只负责"看懂"**，渲染 / 契约 / 冲突消解仍是确定性代码 |
-| `deep` | 3–5 次 | ❌ 未实现 | 显式报错，**不做静默降级** |
+| `fast` | 0 | ¥0，毫秒级 | 纯规则 + 模板，**架构主干**，不是降级版 |
+| `standard` | 1 次 | ≈¥0.001/条 | DeepSeek 只做"看懂"，其余 100% 确定性代码 |
+| `deep` | 3–5 次 | 开发中 | 多轮自检；未实现前显式报错，**不做静默降级** |
+
+**功能一览**：三档位管线（S1–S8）· 多轮澄清闭环 · 自定义优化目标（更简洁/更具体/补充上下文/调整格式）· 输入语言一致性 · SSE 流式 · 优化历史 · 行级对比 · 一键复制 · 零依赖 Web 宿主
+
+> 下面的文档保持工程视角：设计分层、评测口径、不变量与诚实清单。
+
+这是 `docs/prompt-optimizer-plugin-design.md` 设计实现的**第一层主干 + 第二层适配器 + 评测闭环**。
 
 ## 快速开始
 
