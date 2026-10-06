@@ -54,7 +54,7 @@ const estimateArg = has('--estimate');
 const maxCostArg = opt('--max-cost');
 
 if (!['fast', 'standard'].includes(tier)) {
-  console.error(`✗ 未知档位：${tier}（可选 fast / standard；deep 档尚未实现）`);
+  console.error(`✗ 未知档位：${tier}（可选 fast / standard / deep）`);
   process.exit(2);
 }
 
@@ -292,7 +292,7 @@ async function main() {
   const mockState = isMock ? { current: null, calls: 0 } : null;
   let provider = null;
 
-  if (tier === 'standard') {
+  if (tier !== 'fast') {
     if (isMock) {
       provider = makeMockProvider(loadMockMap(mockArg), mockState);
       model = 'mock';
@@ -352,7 +352,7 @@ async function main() {
       totalMs: r1.meta.totalMs,
       llmStatus: llm ? llm.status : null,
       llmCached: llm ? llm.cached : false,
-      costYuan: llm ? llm.costYuan : 0,
+      costYuan: llm ? (llm.costYuan ?? 0) + (llm.deep?.enrich?.costYuan ?? 0) + (llm.deep?.verify?.costYuan ?? 0) : 0,
       degraded: r1.meta.degraded === true,
       merged: llm && llm.merged
         ? {
@@ -400,7 +400,7 @@ async function main() {
     { applied: 0, agreed: 0, blocked: 0, skipped: 0 },
   );
 
-  const tierLabel = `${snapshotSource ? '重算 · ' : ''}${tier === 'fast' ? 'Fast' : isMock ? 'Standard（mock 离线）' : 'Standard'}`;
+  const tierLabel = `${snapshotSource ? '重算 · ' : ''}${tier === 'fast' ? 'Fast' : tier === 'deep' ? 'Deep' : isMock ? 'Standard（mock 离线）' : 'Standard'}`;
   const callsPer = snapshotSource
     ? '0 次 LLM 调用，用快照预测重算'
     : tier === 'fast' ? '0 次 LLM 调用' : '1 次 LLM 调用/条';
