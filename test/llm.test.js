@@ -119,8 +119,8 @@ test('未知槽位被丢弃，其余结论照常采用（边缘字段不牵连�
   assert.equal(r.intent.task_type, 'plan');
 });
 
-test('deep 档：明确报未实现，不静默降级', async () => {
-  await assert.rejects(() => optimizeAsync('随便什么输入', { tier: 'deep' }), /deep 档尚未实现/);
+test('deep 档已实现：缺配置仍显式报错，不静默降级到 standard', async () => {
+  await assert.rejects(() => optimizeAsync('随便什么输入', { tier: 'deep', env: {} }), /LLM_CONFIG_MISSING/);
 });
 
 test('缺 API key：明确报错，不偷偷走 fast 档', async () => {

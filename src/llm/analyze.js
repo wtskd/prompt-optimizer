@@ -20,7 +20,7 @@ import { asList } from '../util.js';
 //      本次 v1.2 修法：①把成因例外收窄为"只有问句本身是成因判断句时才让位"；②code 行补"要写法一律 code"的正例；
 //      ③learn 行补"不含是否必要/真的好吗这类价值判断"。⚠️ v1.2 是在看过 A 臂在本集的错误后写的，
 //      因此它在**同一集**上的数字属**样本内**，只能证明方向；干净的泛化数字必须来自 holdout5。
-const TASK_GUIDE = [
+export const TASK_GUIDE = [  // 导出供 deep 档自检员复用同一套判据（铁律：不在此调参）
   'converse=没有实质请求：只有寒暄、纯情绪、或只有陈述式观察（"我发现 system prompt 好长"），没有任何"要什么"的诉求',
   'decide=在用户**已点名的选项**里选一个（"A 和 B 选哪个"、"该不该用 X"、"有没有推荐的 Y"）',
   'code=交付物是代码/SQL/配置文本本身，或对已有代码/配置做生成、改写、优化、补全（"报错 XX 怎么改/咋整/咋解决/怎么排"、"改成…写法"、"写个脚本"）。**"如何配置 / 怎么设置 / 如何实现 / 怎么写 / 这种情况怎么处理"这类要写法的问句一律 code**，不要因为句首是"如何"就退成 plan 或 learn。**例外**：只有问句本身在问**成因判断**（"是…还是…导致的"、"为什么会这样"、"到底哪里的问题"、"是什么原因"）且不要求改法时，才让位给 analyze',
@@ -181,20 +181,27 @@ export function parseAnalysis(raw) {
  *   用户显式表达（优先级 100）> 模型推断 > 规则默认。
  * 模型不会覆盖 explicit 槽位，也不会用更低置信度覆盖规则层的高置信结论。
  */
-export function applyAnalysis(ir, patch, { model = null } = {}) {
+export function applyAnalysis(ir, patch, { model = null, updateIntent = true } = {}) {
   const applied = [];
   const blocked = [];
   const agreed = []; // 模型结论与现有槽位一致：不算"被拦下"，避免污染审计口径
 
-  // ① 意图
-  ir.intent = {
-    ...ir.intent,
-    task_type: patch.task_type,
-    confidence: patch.confidence,
-    domain: patch.domain,
-    by: 'llm',
-    rules: { task_type: ir.intent.task_type, confidence: ir.intent.confidence },
-  };
+  // ① 意图（deep 补全跳不得动意图，updateIntent=false 时跳过 ①，② 槽位照常走）
+  if (updateIntent) {
+    ir.intent = {
+      ...ir.intent,
+      task_type: patch.task_type,
+      confidence: patch.confidence,
+      domain: patch.domain,
+      by: 'llm',
+      rules: { task_type: ir.intent.task_type, confidence: ir.intent.confidence },
+    };
+  } else {
+    // 补全跳：task_type 必须与定稿一致，否则整个补丁作废（调用方 parseEnrichment 已拦，这里再守一道）
+    if (ir.intent?.task_type !== patch.task_type) {
+      throw llmError('LLM_SCHEMA', `补全器试图更改已定稿的 task_type（${ir.intent?.task_type} → ${patch.task_type}），补丁作废`);
+    }
+  }
   if (patch.deliverable_format) ir.intent.deliverable_format = patch.deliverable_format;
 
   // ⓪ 语言：模型判出的语言只在用户没有显式指定时采纳（帮助纠偏启发式检测）；显式表达永远优先

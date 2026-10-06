@@ -137,7 +137,34 @@ test('澄清闭环走 HTTP：ask 返回问题，answers 回收后问题消失', 
   });
 });
 
-test('错误路径：空输入 400、非法 goal 400、未知路由 404、损坏历史行留痕', async () => {
+test('deep 档走 HTTP：3 跳按系统提示词路由，meta 计数与档位正确', async () => {
+    const deepProvider = {
+      calls: [],
+      async chat(req) {
+        this.calls.push(req);
+        const payload = req.system.includes('槽位补全器')
+          ? { task_type: 'write', confidence: 0.9, domain: 'content', deliverable_format: null, slots: { audience: { value: '老板', confidence: 0.8, evidence: '老板' } } }
+          : req.system.includes('自检员')
+            ? { verdict: 'ok', issues: [] }
+            : { task_type: 'write', confidence: 0.9, domain: 'content', slots: { goal: { value: '写周报', confidence: 0.9, evidence: '周报' } } };
+        return { text: JSON.stringify(payload), usage: { promptMiss: 800, promptHit: 0, completion: 150 }, cost: 0.0026, cached: false, model: 'mock' };
+      },
+    };
+    await withServer(async (base, p) => {
+      const res = await fetch(base + '/api/optimize', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text: '帮我写周报', tier: 'deep' }),
+      });
+      assert.equal(res.status, 200);
+      const data = await res.json();
+      assert.equal(data.meta.tier, 'deep');
+      assert.equal(p.calls.length, 3);
+      assert.equal(data.meta.llmCalls, 3);
+      assert.equal(data.meta.llm.deep.verify.verdict, 'ok');
+    }, { provider: deepProvider });
+  });
+
+  test('错误路径：空输入 400、非法 goal 400、未知路由 404、损坏历史行留痕', async () => {
   await withServer(async (base) => {
     const empty = await fetch(base + '/api/optimize', {
       method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: '  ' }),

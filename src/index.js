@@ -1,5 +1,5 @@
 // 公共 API
-export { optimize, optimizeAsync, STAGES, STAGES_STANDARD } from './pipeline.js';
+export { optimize, optimizeAsync, STAGES, STAGES_STANDARD, STAGES_DEEP } from './pipeline.js';
 export { resolveConfig, createProvider, estimateCost, LlmError, PRICES } from './llm/provider.js';
 export { buildAnalysisMessages, parseAnalysis, applyAnalysis, ANALYZE_SYSTEM } from './llm/analyze.js';
 export { createIR, validateIR, canonicalIR, irHash, SLOT_SOURCES } from './ir.js';

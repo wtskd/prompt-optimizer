@@ -17,7 +17,7 @@
   "scripts": {
     "opt": "node src/cli.js",
     "test": "npm run test:files",
-    "test:files": "node test/intent-slots.test.js && node test/clarify.test.js && node test/clarify-round.test.js && node test/conflict-rules.test.js && node test/e2e.test.js && node test/llm.test.js && node test/llm-merge.test.js && node test/features.test.js && node test/server.test.js",
+    "test:files": "node test/intent-slots.test.js && node test/clarify.test.js && node test/clarify-round.test.js && node test/conflict-rules.test.js && node test/e2e.test.js && node test/llm.test.js && node test/llm-merge.test.js && node test/features.test.js && node test/server.test.js && node test/deep.test.js",
     "eval": "node evals/run.js",
     "eval:local": "node evals/run.js --file inputs.local.jsonl --record baseline.local.json",
     "eval:diff": "node evals/run.js --diff baseline.fast.json",

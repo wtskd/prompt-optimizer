@@ -73,6 +73,7 @@
           <select id="tier">
             <option value="fast">fast（规则层，0 成本）</option>
             <option value="standard" selected>standard（DeepSeek 分析，流式）</option>
+            <option value="deep">deep（3 次调用：分析+补全+自检）</option>
           </select>
         </label>
         <span id="goals">
@@ -200,7 +201,7 @@ async function run(answers) {
     goal: selectedGoals(),
     diff: $('wantDiff').checked,
     ask: true,
-    stream: $('tier').value === 'standard',
+    stream: $('tier').value !== 'fast',
     ...(answers ? { answers } : {}),
   };
   try {

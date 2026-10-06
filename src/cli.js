@@ -29,7 +29,7 @@ const USAGE = `用法：
   --diff                    在 stderr 打印原文与优化结果的逐行对比及字数变化
   --trace <path>            追加一行轨迹到 JSONL 文件
   --model <name>            目标模型：generic | reasoning | fast
-  --tier <name>             档位：fast（默认，0 次 LLM 调用）| standard（1 次 LLM 调用，需 API key）
+  --tier <name>             档位：fast（默认，0 次）| standard（1 次调用）| deep（3 次调用+自检，需 API key）
   --max-cost <元>           standard 档的单次会话花费上限（默认 0.5）
   --no-save                 本次结果不写入优化历史（默认写入）
   --history-file <path>     自定义历史文件（默认 .prompt-optimizer/history.jsonl）

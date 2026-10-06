@@ -1,7 +1,8 @@
 // 阶段编排 S1…S8（设计文档 §7）。三档位分工是刻意的：
 //   fast     —— 0 次 LLM 调用，纯规则 + 模板（同步 optimize）
 //   standard —— 1 次 LLM 调用做「意图 + 槽位」分析，之后 S3–S8 仍是确定性代码（异步 optimizeAsync）
-//   deep     —— 尚未实现，明确报错，不做静默降级
+//   deep     —— 3 次 LLM 调用：基础分析 + 槽位补全 + 对抗性自检；每一跳独立缓存/计费/降级留痕
+//               （llmCalls 预算 4，留一跳余量），渲染与契约仍 100% 确定性代码
 import { TIERS } from './schema.js';
 import { createIR, validateIR } from './ir.js';
 import { detectIntent } from './intent.js';
@@ -14,11 +15,15 @@ import { renderPrompt } from './render.js';
 import { hashObject } from './util.js';
 import { resolveConfig, createProvider } from './llm/provider.js';
 import { buildAnalysisMessages, parseAnalysis, applyAnalysis } from './llm/analyze.js';
+import { buildEnrichMessages, parseEnrichment, buildStateSnapshot, buildVerifyMessages, parseVerdict, gateRevision } from './llm/deep.js';
 
 export const STAGES = ['S1_intent', 'S2_slots', 'S3_clarify', 'S4_rules', 'S5_conflict', 'S6_contract', 'S7_render', 'S8_validate'];
 
 /** standard 档真正跑的阶段（比 fast 多一步 LLM 分析） */
 export const STAGES_STANDARD = ['S1_intent', 'S2_slots', 'S1b_llm_analyze', ...STAGES.slice(2)];
+
+/** deep 档：在 standard 的基础上多两跳——槽位补全（S1c）与对抗性自检（S1d） */
+export const STAGES_DEEP = ['S1_intent', 'S2_slots', 'S1b_llm_analyze', 'S1c_llm_enrich', 'S1d_llm_verify', ...STAGES.slice(2)];
 
 /**
  * 同步核心：给定（可选的）LLM 补丁，跑完 S1–S8。
@@ -46,6 +51,23 @@ function runPipeline(rawText, opts, llm = null) {
     ir.trace.push({ stage: 'S1b_llm_analyze', ms: llm.ms ?? 0 });
     if (llm.status === 'ok') merged = applyAnalysis(ir, llm.patch, { model: llm.model ?? null });
   }
+  // Deep 档追加两跳（补丁在 optimizeAsync 里已取回，这里只是确定性合并）。
+  // 留痕口径：只要该跳真正执行过（无论成败）就进阶段轨迹；合并只在补丁合法时发生。
+  const deep = llm?.deep ?? null;
+  let mergedEnrich = null;
+  if (deep?.enrich) {
+    ir.trace.push({ stage: 'S1c_llm_enrich', ms: deep.enrich.ms ?? 0 });
+    if (deep.enrich.status === 'ok') {
+      mergedEnrich = applyAnalysis(ir, deep.enrich.patch, { updateIntent: false, model: deep.enrich.model ?? null });
+    }
+  }
+  let mergedVerify = null;
+  if (deep?.verify) {
+    ir.trace.push({ stage: 'S1d_llm_verify', ms: deep.verify.ms ?? 0 });
+    if (deep.verify.revision) {
+      mergedVerify = applyAnalysis(ir, deep.verify.revision, { updateIntent: true, model: deep.verify.model ?? null });
+    }
+  }
 
   // S3 是澄清层的唯一定稿点：先把用户回答（opts.answers）合入 IR，再据此产出问题与假设。
   // 被回答的槽位 → source=explicit/confidence=1 → 缺口评分归零 → 不再追问、不再成为假设。
@@ -58,6 +80,11 @@ function runPipeline(rawText, opts, llm = null) {
   ir.contract = stage('S6_contract', () => buildContract(ir));
   const prompt = stage('S7_render', () => renderPrompt(ir, opts.recipeId ?? 'fast/default'));
   const violations = stage('S8_validate', () => validateIR(ir, prompt));
+
+  // deep 档实际发生的非缓存调用数（含三跳）；standard 保持旧口径（0 或 1）
+  const deepCallCount = deep
+    ? [llm, deep.enrich, deep.verify].filter((p) => p && p.status === 'ok' && !p.cached).length
+    : 0;
 
   return {
     prompt,
@@ -72,7 +99,7 @@ function runPipeline(rawText, opts, llm = null) {
     meta: {
       ok: violations.length === 0,
       tier,
-      llmCalls: llm ? (llm.cached ? 0 : 1) : 0,
+      llmCalls: llm ? (deep ? deepCallCount : (llm.cached ? 0 : 1)) : 0,
       llmBudgetCalls: TIERS[tier].llmCalls,
       latencyBudgetMs: TIERS[tier].latencyBudgetMs,
       // ms = 本地计算耗时；totalMs = 用户实际等待（含 LLM 往返）。延迟预算要按 totalMs 看
@@ -96,6 +123,40 @@ function runPipeline(rawText, opts, llm = null) {
             usage: llm.usage ?? null,
             ms: llm.ms ?? null,
             merged,
+            deep: deep
+              ? {
+                  skipped: deep.skipped === true,
+                  enrich: deep.enrich
+                    ? {
+                        status: deep.enrich.status,
+                        code: deep.enrich.code ?? null,
+                        reason: deep.enrich.reason ?? null,
+                        ms: deep.enrich.ms ?? null,
+                        costYuan: deep.enrich.cost ?? 0,
+                        cached: deep.enrich.cached === true,
+                        model: deep.enrich.model ?? null,
+                        skippedEvents: deep.enrich.skippedEvents ?? 0,
+                        merged: mergedEnrich,
+                      }
+                    : null,
+                  verify: deep.verify
+                    ? {
+                        status: deep.verify.status,
+                        code: deep.verify.code ?? null,
+                        reason: deep.verify.reason ?? null,
+                        ms: deep.verify.ms ?? null,
+                        costYuan: deep.verify.cost ?? 0,
+                        cached: deep.verify.cached === true,
+                        model: deep.verify.model ?? null,
+                        verdict: deep.verify.verdict ?? null,
+                        issues: deep.verify.issues ?? [],
+                        revisionApplied: !!deep.verify.revision,
+                        revisionRejected: deep.verify.revisionRejected ?? null,
+                        merged: mergedVerify,
+                      }
+                    : null,
+                }
+              : null,
           }
         : null,
       degraded: llm ? llm.status !== 'ok' : false,
@@ -138,9 +199,6 @@ export async function optimizeAsync(rawText, opts = {}) {
   const tier = opts.tier ?? 'standard';
   if (!TIERS[tier]) throw new Error(`未知档位：${tier}`);
   if (tier === 'fast') return runPipeline(rawText, { ...opts, tier }, null);
-  if (tier === 'deep') {
-    throw new Error('deep 档尚未实现（需要 3–5 次调用与多轮自检）：请用 fast 或 standard，不做静默降级。');
-  }
 
   let provider = opts.provider ?? null;
   if (!provider) {
@@ -149,6 +207,7 @@ export async function optimizeAsync(rawText, opts = {}) {
     provider = createProvider(cfg, opts);
   }
 
+  // —— 第 1 跳：基础分析（与 standard 完全同源：同一提示词、同一缓存、同一校验器）——
   const started = Date.now();
   let llm;
   try {
@@ -184,5 +243,63 @@ export async function optimizeAsync(rawText, opts = {}) {
       usage: null,
     };
   }
-  return runPipeline(rawText, { ...opts, tier }, llm);
+
+  if (tier !== 'deep') return runPipeline(rawText, { ...opts, tier }, llm);
+
+  // —— Deep 档：第 2 跳补全 + 第 3 跳自检。任何一跳失败都留痕继续，不做静默吞错；
+  //     只有基础分析失败才算整体降级（deep.skipped，后续跳不再花钱）。
+  const deep = { skipped: llm.status !== 'ok', enrich: null, verify: null };
+
+  if (!deep.skipped) {
+    const t2 = Date.now();
+    try {
+      const m = buildEnrichMessages(rawText, llm.patch.task_type, llm.patch);
+      const res = await provider.chat({ system: m.system, user: m.user, maxTokens: 700 });
+      const patch = parseEnrichment(res.text, llm.patch.task_type);
+      deep.enrich = {
+        status: 'ok', patch, ms: Date.now() - t2, cost: res.cost ?? 0,
+        cached: res.cached === true, model: res.model ?? null, skippedEvents: res.skippedEvents ?? 0,
+      };
+    } catch (e) {
+      deep.enrich = {
+        status: 'failed', code: e?.code ?? 'LLM_ERROR', reason: e?.message ?? String(e),
+        ms: Date.now() - t2, cost: 0, cached: false, model: null,
+      };
+    }
+
+    // 自检跳看的是模型层的两跳合并视图（显式/规则层槽位由合并层守门，不进提示词）
+    const t3 = Date.now();
+    try {
+      const snapshot = buildStateSnapshot(rawText, llm.patch, deep.enrich?.status === 'ok' ? deep.enrich.patch : null);
+      const m = buildVerifyMessages(rawText, snapshot);
+      const res = await provider.chat({ system: m.system, user: m.user, maxTokens: 500 });
+      const verdict = parseVerdict(res.text);
+      const { revision: _rawRevision, ...verdictClean } = verdict; // 原始 revision 不能直接进 meta：由下方门槛决定去留
+      deep.verify = {
+        status: 'ok', ...verdictClean, ms: Date.now() - t3, cost: res.cost ?? 0,
+        cached: res.cached === true, model: res.model ?? null, skippedEvents: res.skippedEvents ?? 0,
+      };
+      const gate = gateRevision(verdict.revision, llm.patch.task_type);
+      if (gate?.revision) {
+        deep.verify.revision = {
+          task_type: gate.revision.task_type,
+          confidence: gate.revision.confidence,
+          domain: llm.patch.domain,
+          deliverable_format: null,
+          slots: {},
+          skipped: [],
+          coerced: [],
+        };
+      } else if (gate?.rejected) {
+        deep.verify.revisionRejected = gate.rejected;
+      }
+    } catch (e) {
+      deep.verify = {
+        status: 'failed', code: e?.code ?? 'LLM_ERROR', reason: e?.message ?? String(e),
+        ms: Date.now() - t3, cost: 0, cached: false, model: null,
+      };
+    }
+  }
+
+  return runPipeline(rawText, { ...opts, tier }, { ...llm, deep });
 }

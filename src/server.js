@@ -58,7 +58,7 @@ export function startServer(opts = {}) {
   /** 每次请求独立解析配置/建 provider：key 只从服务端环境来；测试可注入假 provider */
   function runOpts(body, extra = {}) {
     return {
-      tier: body.tier === 'standard' ? 'standard' : 'fast',
+      tier: body.tier === 'standard' || body.tier === 'deep' ? body.tier : 'fast',
       targetModel: typeof body.model === 'string' && body.model ? body.model : 'generic',
       ask: body.ask === true,
       goal: body.goal ?? null,
@@ -123,8 +123,8 @@ export function startServer(opts = {}) {
     const runConfig = runOpts(body, { goal: goalIds });
     const wantDiff = body.diff === true;
 
-    // 流式（standard 档）：SSE 推送分析增量 + 最终完整结果；fast 档同步跑，直接 done
-    if (body.stream === true && runConfig.tier === 'standard') {
+    // 流式（standard/deep 档）：SSE 推送分析增量 + 最终完整结果；fast 档同步跑，直接 done
+    if (body.stream === true && runConfig.tier !== 'fast') {
       res.writeHead(200, {
         'content-type': 'text/event-stream; charset=utf-8',
         'cache-control': 'no-cache',

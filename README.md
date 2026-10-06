@@ -9,7 +9,7 @@
 [![CI](https://github.com/wtskd/prompt-optimizer/actions/workflows/ci.yml/badge.svg)](https://github.com/wtskd/prompt-optimizer/actions/workflows/ci.yml)
 ![Node](https://img.shields.io/badge/node-%E2%89%A522-339933?logo=node.js)
 ![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen)
-![tests](https://img.shields.io/badge/tests-79%20pass-2ea44f)
+![tests](https://img.shields.io/badge/tests-89%20pass-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 **为什么是这个形态**：多数"提示词优化器"是把你的话丢给 LLM 重写一遍——结果不可复现、不可审计、每次都花钱。本项目反过来：**LLM 只负责"看懂"（意图分类 + 槽位抽取），改写本身由确定性代码完成**，因此输出可回放、可 diff、可离线（fast 档零成本毫秒级），并且有一整套留出集评测在盯着数字。
@@ -18,9 +18,9 @@
 |---|---|---|---|
 | `fast` | 0 | ¥0，毫秒级 | 纯规则 + 模板，**架构主干**，不是降级版 |
 | `standard` | 1 次 | ≈¥0.001/条 | DeepSeek 只做"看懂"，其余 100% 确定性代码 |
-| `deep` | 3–5 次 | 开发中 | 多轮自检；未实现前显式报错，**不做静默降级** |
+| `deep` | 3 次 | ≈¥0.004/条 | 基础分析 + 槽位补全 + 对抗性自检；每跳独立缓存/计费/留痕，**不做静默降级** |
 
-**功能一览**：三档位管线（S1–S8）· 多轮澄清闭环 · 自定义优化目标（更简洁/更具体/补充上下文/调整格式）· 输入语言一致性 · SSE 流式 · 优化历史 · 行级对比 · 一键复制 · 零依赖 Web 宿主
+**功能一览**：三档位管线（S1–S8 + deep 三跳）· 多轮澄清闭环 · 自定义优化目标（更简洁/更具体/补充上下文/调整格式）· 输入语言一致性 · SSE 流式 · 优化历史 · 行级对比 · 一键复制 · 零依赖 Web 宿主
 
 > 下面的文档保持工程视角：设计分层、评测口径、不变量与诚实清单。
 
@@ -378,7 +378,7 @@ src/       内核（schema / ir / intent / slots / clarify / rules / conflict / 
 src/llm/   provider.js（OpenAI 兼容传输层 + SSE 流式 + 成本护栏 + 缓存）/ analyze.js（顺序判据提示词、解析、合并留痕）
 src/       server.js（零依赖 Web 宿主：/api/optimize 同步+SSE 流式 / /api/history）
 src/web/   index.html（单文件界面：流式进度、澄清面板、diff 视图、复制、历史侧栏）
-test/      79 个 node:test 用例（9 个文件：clarify-round / llm / llm-merge / features / server 等）
+test/      89 个 node:test 用例（10 个文件：clarify-round / llm / llm-merge / features / server / deep 等）
 evals/     dev.jsonl（回归 20 条）/ samples.jsonl（盲测 30 条）/ inputs.local.example.jsonl（真实输入落点）
            holdout.jsonl … holdout5.jsonl（五批独立留出集，前四批已按铁律消耗，干净数字的来龙去脉见 ANNOTATION.md）
            mock.demo.jsonl（离线模型回答）
