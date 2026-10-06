@@ -403,3 +403,24 @@ V2EX（`global.v2ex.co/go/python`、`/go/programmer` 及 3 个详情页）；采
 | k13 | analyze | analyze, plan | 无信号探针：标题暗示遇问题，诉求不可判定 |
 | k14 | converse | converse | 纯情绪吐槽无实质请求 |
 | k15 | converse | converse, review | 纯分享+模糊的'理性指导' |
+
+
+- **独立盲标结果（2026-10-06，全新上下文 subagent，禁读仓库，仅见 id+text）**：
+  主标签与 Lead 一致 **11/15**（k03 plan→learn、k10 plan→learn、k13 analyze→code、k15 converse→review 四条分歧，
+  全部按裁定规则取盲标）。四条分歧均为边界带而非硬错：k03/k10 是"求建议 vs 求解释"的口径缝，k13 是无信号探针
+  的主观解读，k15 是"分享 vs 求反馈"的语气判断。无 §1 硬判据违规（本集无 decide 案例）。
+- **引擎实测（2026-10-06，采集冻结 → 双盲 → 裁定全部完成后才跑；deepseek-chat 新 key）**：
+
+| 档位 | 严格 / 宽松 | 可直接采用率 | 错且自信 | 花费 | 平均耗时（含往返） |
+|---|---|---|---|---|---|
+| Fast | **0.0% / 0.0%** | 0.0% | 2 | ¥0 | ~0ms |
+| Standard | **66.7% / 93.3%** | 46.7% | 1（k07 code→plan） | ¥0.0164 | 1067ms |
+| Deep | **66.7% / 93.3%** | 46.7% | 1（同 k07） | ¥0.0312（第 1 跳全缓存命中，只花补全+自检的钱） | 见口径注 |
+
+- **口径注**：① deep 档意图与 standard 持平**符合设计**——补全跳不动意图、自检修订门槛（≥0.8 且不同值）极严，
+  deep 的增量在槽位召回与自检审计（CLI 单条验证：补全跳追回 constraints_include/background）。② 本集运行时的
+  评测器 totalMs 只计第 1 跳往返、漏了 deep 第 2/3 跳——已在 pipeline 修复，但已录快照为缓存重放、不可复得真实
+  往返时间；deep 真实单条延迟 ≈ standard 的 2–3 倍（约 2s 量级，预算 15s 内）。③ 本集依旧无 deliverable_format
+  期望（博问来源的固有局限，形态口径 n/a）。④ converse 首次入集（k14/k15），standard/deep 全对；k15（分享求指导）
+  被两档判 review——命中宽松口径。
+- **消耗声明**：holdout6 自本节写入起已消耗（铁律 6）。下一个干净数字必须再采 holdout7。

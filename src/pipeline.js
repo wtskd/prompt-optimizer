@@ -102,9 +102,12 @@ function runPipeline(rawText, opts, llm = null) {
       llmCalls: llm ? (deep ? deepCallCount : (llm.cached ? 0 : 1)) : 0,
       llmBudgetCalls: TIERS[tier].llmCalls,
       latencyBudgetMs: TIERS[tier].latencyBudgetMs,
-      // ms = 本地计算耗时；totalMs = 用户实际等待（含 LLM 往返）。延迟预算要按 totalMs 看
+      // ms = 本地计算耗时；totalMs = 用户实际等待（含全部 LLM 往返：deep 档 = 三跳之和）。延迟预算按 totalMs 看
       ms: Date.now() - startedAt,
-      totalMs: Date.now() - startedAt + (llm?.ms ?? 0),
+      totalMs:
+        Date.now() - startedAt +
+        (llm?.ms ?? 0) +
+        (llm?.deep ? (llm.deep.enrich?.ms ?? 0) + (llm.deep.verify?.ms ?? 0) : 0),
       sourceHash: ir.source.hash,
       promptHash: hashObject(prompt),
       // 多轮澄清闭环的留痕：无 answers 时为 null（既有路径逐字节不变）

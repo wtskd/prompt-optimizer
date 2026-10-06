@@ -53,7 +53,7 @@ const limitArg = opt('--limit');
 const estimateArg = has('--estimate');
 const maxCostArg = opt('--max-cost');
 
-if (!['fast', 'standard'].includes(tier)) {
+if (!['fast', 'standard', 'deep'].includes(tier)) {
   console.error(`✗ 未知档位：${tier}（可选 fast / standard / deep）`);
   process.exit(2);
 }
